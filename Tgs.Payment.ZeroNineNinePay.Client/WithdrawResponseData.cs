@@ -17,7 +17,7 @@ namespace Tgs.Payment.ZeroNineNinePay
         public decimal Money { get; set; }
 
         [JsonPropertyName("fee")]
-        public decimal Fee { get; set; }
+        public string Fee { get; set; } = default!;
 
         [JsonPropertyName("sign_type")]
         public string SignType { get; set; } = default!;
