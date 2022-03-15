@@ -21,7 +21,7 @@ namespace Tgs.Payment.ZeroNineNinePay
             var sign = ZeroNineNinePayHasher.ComputeHash(merchantKey, orderDict);
 
             orderDict["sign"] = sign;
-            
+
             var content = new StringContent(JsonSerializer.Serialize(orderDict));
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
@@ -47,10 +47,6 @@ namespace Tgs.Payment.ZeroNineNinePay
             var sign = ZeroNineNinePayHasher.ComputeHash(merchantKey, orderDict);
 
             orderDict["sign"] = sign;
-
-            var paramDict = orderDict
-                .AsEnumerable()
-                .Select(p => new KeyValuePair<string?, string?>(p.Key, p.Value?.ToString()));
 
             var content = new StringContent(JsonSerializer.Serialize(orderDict));
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
