@@ -27,7 +27,7 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
             var order = new WithdrawOrder
             {
                 MerchantId = settings.MerchantId,
-                OutTradeNo = settings.OrderNo.ToString(),
+                OutTradeNo = settings.OrderNo.ToString("N"),
                 Realname = settings.RealName,
                 BankName = settings.BankName,
                 BankNumber = settings.BankNumber,

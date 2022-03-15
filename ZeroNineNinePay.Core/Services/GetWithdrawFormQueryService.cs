@@ -15,7 +15,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
 
         public async ValueTask<WithdrawFormInfo?> GetAsync(GetWithdrawFormQuery query, CancellationToken cancellationToken = default)
         {
-            var withdrawFormId = new Guid(query.OrderNo);
+            var withdrawFormId = Guid.Parse(query.OrderNo);
 
             var formData = await _paymentServiceClient
                 .GetWithdrawFormAsync(withdrawFormId)

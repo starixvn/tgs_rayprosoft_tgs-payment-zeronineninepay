@@ -15,7 +15,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
 
         public async ValueTask<DepositFormInfo?> GetAsync(GetDepositFormQuery query, CancellationToken cancellationToken = default)
         {
-            var formId = new Guid(query.OrderNo);
+            var formId = Guid.Parse(query.OrderNo);
 
             var formData = await _paymentServiceClient
                 .GetDepositFormAsync(formId)

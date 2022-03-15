@@ -29,7 +29,7 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
                 MerchantId = settings.MerchantId,
                 PayType = settings.PayType.ToString(),
                 PayName = settings.PayerName,
-                OutTradeNo = settings.OrderNo.ToString(),
+                OutTradeNo = settings.OrderNo.ToString("N"),
                 NotifyUrl = $"{_options.CallbackBaseUrl}/deposit/callback",
                 ReturnUrl = $"{_options.CallbackBaseUrl}/deposit/callback",
                 Money = decimal.Parse(request.Amount),
