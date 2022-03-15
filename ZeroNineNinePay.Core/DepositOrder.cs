@@ -60,7 +60,7 @@ namespace Tgs.Payment.ZeroNineNinePay
         /// The return URL.
         /// </value>
         [JsonPropertyName("return_url")]
-        public string? ReturnUrl { get; set; }
+        public string ReturnUrl { get; set; } = default!;
 
         /// <summary>
         /// The submitted amount of deposit, unit:₱, Up to two decimal places

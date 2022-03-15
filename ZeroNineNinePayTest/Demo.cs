@@ -21,8 +21,8 @@ namespace ZeroNineNinePayTest
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await DepoistAsync();
-            //await WithdrawAsync();
+            //await DepoistAsync();
+            await WithdrawAsync();
         }
 
         private async Task DepoistAsync()
@@ -56,38 +56,38 @@ namespace ZeroNineNinePayTest
             }
         }
 
-        //private async Task WithdrawAsync()
-        //{
-        //    var merchantNo = "API7313181217337047";
-        //    var apiKey = "68199f7df5e142c69ae2516b75c176d5";
-        //    var orderNo = Guid.NewGuid();
-        //    var accountName = "accountName";
-        //    var bankCode = "ABC";
-        //    var bankBranchName = "农业银行";
-        //    var cardNo = "112233445566";
-        //    var amount = 500;
+        private async Task WithdrawAsync()
+        {
+            var merchantId = 20114;
+            var merchantKey = "e966245afe6abbb1b531774b088e7d58";
+            var realName = "realNameTest";
+            var bankName = "bankNameTest";
+            var bankNumber = "112233445566";
+            var bankAddress = "bankAddressTest";            
+            var orderNo = Guid.NewGuid();
+            var amount = 1000m;
 
-        //    var withdrawSettings = new MaticPayWithdrawSettings(
-        //        merchantNo,
-        //        apiKey,
-        //        orderNo,
-        //        amount,
-        //        accountName,
-        //        bankCode,
-        //        bankBranchName,
-        //        cardNo);
-        //    try
-        //    {
-        //        var withdrawReturn = await _paymentClient.WithdrawAsync(
-        //            "tgs.payment.zeronineninepay.withdraw",
-        //            amount,
-        //            _maticPaySerializer.Serialize(withdrawSettings));
-        //        _logger.LogInformation($"Withdraw Return: {withdrawReturn}");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogDebug(ex.Message);
-        //    }
-        //}
+            var withdrawSettings = new ZeroNineNinePayWithdrawSettings(
+                merchantId,
+                merchantKey,
+                realName,
+                bankName,
+                bankNumber,
+                bankAddress,
+                orderNo);
+            
+            try
+            {
+                var withdrawReturn = await _paymentClient.WithdrawAsync(
+                    "tgs.payment.zeronineninepay.withdraw",
+                    amount,
+                    JsonSerializer.Serialize(withdrawSettings));
+                _logger.LogInformation($"Withdraw Return: {withdrawReturn}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex.Message);
+            }
+        }
     }
 }

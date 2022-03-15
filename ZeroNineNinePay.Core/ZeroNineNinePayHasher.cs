@@ -16,10 +16,10 @@ namespace Tgs.Payment.ZeroNineNinePay
         {
             var content = string.Join(
                 "&",
-                dict.Where(x => x.Key is not "sign" and not "sign_type")
+                dict.Where(x => (x.Key is not "sign" and not "sign_type") && x.Value is not null)
                     .OrderBy(x => x.Key).Select(p =>
                     {
-                        return p.Value is null ? $"{p.Key}=" : $"{p.Key}={p.Value}";
+                        return $"{p.Key}={p.Value}";
                     }));
 
             var plainText = $"{content}{merchantKey}";

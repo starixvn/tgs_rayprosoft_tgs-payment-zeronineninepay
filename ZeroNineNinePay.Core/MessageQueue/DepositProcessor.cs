@@ -31,7 +31,7 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
                 PayName = settings.PayerName,
                 OutTradeNo = settings.OrderNo.ToString(),
                 NotifyUrl = $"{_options.CallbackBaseUrl}/deposit/callback",
-                ReturnUrl = null,
+                ReturnUrl = $"{_options.CallbackBaseUrl}/deposit/callback",
                 Money = decimal.Parse(request.Amount),
                 ClientIp = settings.ClientIp,
                 SignType = "md5"
