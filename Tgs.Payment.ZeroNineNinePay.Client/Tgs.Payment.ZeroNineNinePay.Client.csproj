@@ -1,13 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <RootNamespace>Tgs.Payment.ZeroNineNinePay</RootNamespace>
-    <Version>0.0.1-alpha</Version>
+    <TargetFramework>net5.0;net6.0</TargetFramework>
+	<RootNamespace>Tgs.Payment.ZeroNineNinePay</RootNamespace>
+	<ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>    
+    <Version>0.0.2</Version>
     <Authors>Raypro</Authors>
     <Company>Raypro</Company>
+	<IsPackable>true</IsPackable>
     <PackageId>Tgs.Payment.ZeroNineNinePay.Client</PackageId>
   </PropertyGroup>
 
