@@ -1,8 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
@@ -67,7 +65,7 @@ builder.Services.Configure<AspNetCoreInstrumentationOptions>(options =>
 builder.Services.AddProfileViewer();
 
 builder.Services
-    .AddZeroNineNinePay((options, sp) => 
+    .AddZeroNineNinePay((options, sp) =>
     {
         var config = sp.GetRequiredService<IConfiguration>();
 
