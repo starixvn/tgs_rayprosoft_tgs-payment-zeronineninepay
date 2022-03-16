@@ -6,4 +6,7 @@ metadata:
 data:
   appsettings.json: |
     {      
+      "ZeroNineNinePay": {
+        "PaymentServiceBaseUrl": "http://payment-api"
+      }
     }
