@@ -105,7 +105,8 @@ pipeline {
 		stage('Deploy to k8s') {			
 			steps {
                 script {
-                    withKubeConfig([credentialsId: env.k8s_config]) {        
+                    withKubeConfig([credentialsId: env.k8s_config]) {
+
                         def resources = getResources(env.k8s_config, env.kube_ns, "payment-zeronineninepay")
                         def dedicated = getTgsSettings(env.k8s_config, env.kube_ns, "dedicated")
                         def node_selector = getTgsSettings(env.k8s_config, env.kube_ns, "node-selector")
@@ -114,35 +115,35 @@ pipeline {
                         println dedicated
                         println node_selector
                         
-                            sh """
-                                cat << EOF | yq e -P | helm template deployment/k8s/zeronineninepay \
-                                    -n ${kube_ns} \
-                                    --set image.tag=${TAG} \
-                                    --set paymentApiUrl=$tgs_paymentApiUrl_zeronineninepay \
-                                    --set nats=$tgs_nats \
-                                    --set callbackBaseUrl=$tgs_paymentCallbackBaseUrl_zeronineninepay \
-                                    -f -
+                        sh '''
+                            cat << EOF | yq e -P | helm template deployment/k8s/zeronineninepay \
+                                -n ${kube_ns} \
+                                --set image.tag=${TAG} \
+                                --set paymentApiUrl=$tgs_paymentApiUrl_zeronineninepay \
+                                --set nats=$tgs_nats \
+                                --set callbackBaseUrl=$tgs_paymentCallbackBaseUrl_zeronineninepay \
+                                -f -
                                 {
                                     "nodeSelector": $node_selector,
                                     "tolerations": [$dedicated],
                                     "resources": $resources,
                                 }
-                            """
-                            sh """
-                                cat << EOF | yq e -P | helm template deployment/k8s/zeronineninepay \
-                                    -n ${kube_ns} \
-                                    --set image.tag=${TAG} \
-                                    --set paymentApiUrl=$tgs_paymentApiUrl_zeronineninepay \
-                                    --set nats=$tgs_nats \
-                                    --set callbackBaseUrl=$tgs_paymentCallbackBaseUrl_zeronineninepay \
-                                    -f - \
-                                    | kubectl -n ${kube_ns} apply -f -
-                                {
-                                    "nodeSelector": $node_selector,
-                                    "tolerations": [$dedicated],
-                                    "resources": $resources
-                                }
-                            """
+                        '''
+                        sh '''
+                            cat << EOF | yq e -P | helm template deployment/k8s/zeronineninepay \
+                                -n ${kube_ns} \
+                                --set image.tag=${TAG} \
+                                --set paymentApiUrl=$tgs_paymentApiUrl_zeronineninepay \
+                                --set nats=$tgs_nats \
+                                --set callbackBaseUrl=$tgs_paymentCallbackBaseUrl_zeronineninepay \
+                                -f - \
+                            | kubectl -n ${kube_ns} apply -f -
+                            {
+                                "nodeSelector": $node_selector,
+                                "tolerations": [$dedicated],
+                                "resources": $resources
+                            }
+                        '''
                         
                     }
                 }
