@@ -5,11 +5,5 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   appsettings.json: |
-    {
-      "ZeroNineNinePay": {
-        "PaymentApiUrl": "{{ .Values.paymentApiUrl  }}",
-        "NatsUrl": "{{ .Values.nats }}",
-        "CallbackBaseUrl": "{{ .Values.callbackBaseUrl }}",
-        "PaymentServiceBaseUrl": "{{ .Values.paymentServiceBaseUrl  }}"
-      }
+    {      
     }

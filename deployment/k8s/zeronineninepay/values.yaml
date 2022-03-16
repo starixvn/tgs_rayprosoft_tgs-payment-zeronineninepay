@@ -15,11 +15,6 @@ imagePullSecrets:
 nameOverride: "payment-zeronineninepay"
 fullnameOverride: "payment-zeronineninepay"
 
-nats: nats://localhost:4222
-paymentApiUrl: https://099pays.com
-callbackBaseUrl: https://dev-payment.rpgp.cc/zeronineninepay
-paymentServiceBaseUrl: http://payment-api
-
 podAnnotations: {}
 
 podSecurityContext: {}
