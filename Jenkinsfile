@@ -112,8 +112,7 @@ pipeline {
                         println resources
                         println dedicated
                         println node_selector
-
-                        withCredentials([credentialsId: env.k8s_config]) {
+                        
                             sh """
                                 cat << EOF | yq e -P | helm template deployment/k8s/zeronineninepay \
                                     -n ${kube_ns} \
