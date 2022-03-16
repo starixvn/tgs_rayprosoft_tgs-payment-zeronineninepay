@@ -8,6 +8,7 @@ pipeline {
 		BuildConfiguration = "Debug"
 		ImageName = "harbor.rpgp.cc/tgs/payment-zeronineninepay"
 	}
+
 	stages {
 		stage('Prepare'){
 			steps {
@@ -142,7 +143,7 @@ pipeline {
                                     "resources": $resources
                                 }
                             """
-                        }
+                        
                     }
                 }
 			}
