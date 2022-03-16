@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Google.Protobuf;
+﻿using Google.Protobuf;
 using Microsoft.Extensions.Options;
 using Tgs.MessageQueue;
 using Tgs.Payment.Protos;
@@ -8,13 +7,16 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
 {
     internal class DepositProcessor : IMessageProcessor
     {
+        private readonly ZeroNineNinePaySerializer _zeroNineNinePaySerializer;
         private readonly ZeroNineNinePayClient _zeroNineNinePayClient;
         private readonly ZeroNineNinePayOptions _options;
 
         public DepositProcessor(
+            ZeroNineNinePaySerializer zeroNineNinePaySerializer,
             ZeroNineNinePayClient zeroNineNinePayClient,
             IOptions<ZeroNineNinePayOptions> optionsAccessor)
         {
+            _zeroNineNinePaySerializer = zeroNineNinePaySerializer;
             _zeroNineNinePayClient = zeroNineNinePayClient ?? throw new ArgumentNullException(nameof(zeroNineNinePayClient));
             _options = optionsAccessor.Value;
         }
@@ -22,7 +24,7 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
         public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
         {
             var request = DepositRequest.Parser.ParseFrom(data.Span);
-            var settings = JsonSerializer.Deserialize<ZeroNineNinePayDepositSettings>(request.ApplyInfo)!;
+            var settings = _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayDepositSettings>(request.ApplyInfo)!;
 
             var order = new DepositOrder
             {
@@ -47,7 +49,7 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
 
                 var msg = new DepositResponse
                 {
-                    Result = JsonSerializer.Serialize(applyInfo)
+                    Result = _zeroNineNinePaySerializer.Serialize(applyInfo)
                 };
 
                 return msg.ToByteArray();
@@ -68,7 +70,7 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
 
                 var msg = new DepositResponse
                 {
-                    Result = JsonSerializer.Serialize(applyInfo)
+                    Result = _zeroNineNinePaySerializer.Serialize(applyInfo)
                 };
 
                 return msg.ToByteArray();

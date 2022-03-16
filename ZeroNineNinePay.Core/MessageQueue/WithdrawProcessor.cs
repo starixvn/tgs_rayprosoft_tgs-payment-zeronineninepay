@@ -8,13 +8,16 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
 {
     internal class WithdrawProcessor : IMessageProcessor
     {
+        private readonly ZeroNineNinePaySerializer _zeroNineNinePaySerializer;
         private readonly ZeroNineNinePayClient _zeroNineNinePayClient;
         private readonly ZeroNineNinePayOptions _options;
 
         public WithdrawProcessor(
+            ZeroNineNinePaySerializer zeroNineNinePaySerializer,
             ZeroNineNinePayClient zeroNineNinePayClient,
             IOptions<ZeroNineNinePayOptions> optionsAccessor)
         {
+            _zeroNineNinePaySerializer = zeroNineNinePaySerializer;
             _zeroNineNinePayClient = zeroNineNinePayClient ?? throw new ArgumentNullException(nameof(zeroNineNinePayClient));
             _options = optionsAccessor.Value;
         }
@@ -22,7 +25,7 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
         public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
         {
             var request = WithdrawRequest.Parser.ParseFrom(data.Span);
-            var settings = JsonSerializer.Deserialize<ZeroNineNinePayWithdrawSettings>(request.ApplyInfo)!;
+            var settings = _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayWithdrawSettings>(request.ApplyInfo)!;
 
             var order = new WithdrawOrder
             {
@@ -43,37 +46,11 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
 
             if (withdrawResponse != null && withdrawResponse.Code == 200)
             {
-                var applyInfo = new ZeroNineNinePayWithdrawApplyInfo(settings, withdrawResponse);
-
-                //var transactionQueryOrder = new TransactionQueryOrder()
-                //{
-                //    Version = "V2",
-                //    SignType = "MD5",
-                //    MerchantNo = settings.MerchantNo,
-                //    Date = DateTime.Now.ToString("yyyyMMddhhmmss"),
-                //    OrderNo = settings.OrderNo.ToString()
-                //};
-                //var transactionQueryResponse = await _zeroNineNinePayClient
-                //    .TransactionQueryAsync(settings.ApiKey, transactionQueryOrder)
-                //    .ConfigureAwait(false);
-
-                //var thirdPartyOrderNo = "";
-                //if (transactionQueryResponse!.Code == "0")
-                //{
-                //    thirdPartyOrderNo = transactionQueryResponse!.Detail!.SysOrderNo;
-                //}
-                //else
-                //{
-                //    _logger.LogInformation($"transactionQueryResponse Failed:{transactionQueryResponse.Msg}");
-                //}
-
-                //await _paymentClient
-                //    .SaveWithdrawFormThirdPartyOrderNoAsync(settings.OrderNo, thirdPartyOrderNo!)
-                //    .ConfigureAwait(false);
+                var applyInfo = new ZeroNineNinePayWithdrawApplyInfo(settings, withdrawResponse);                
 
                 var msg = new WithdrawResponse
                 {
-                    Result = JsonSerializer.Serialize(applyInfo)
+                    Result = _zeroNineNinePaySerializer.Serialize(applyInfo)
                 };
 
                 return msg.ToByteArray();
@@ -90,7 +67,7 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
 
                 var msg = new WithdrawResponse
                 {
-                    Result = JsonSerializer.Serialize(applyInfo)
+                    Result = _zeroNineNinePaySerializer.Serialize(applyInfo)
                 };
 
                 return msg.ToByteArray();
