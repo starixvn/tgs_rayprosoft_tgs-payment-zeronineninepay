@@ -36,6 +36,8 @@ namespace Tgs.Payment.ZeroNineNinePay
 
             _ = response.EnsureSuccessStatusCode();
 
+            _logger.LogInformation($"deposit bodyJson:{bodyJson}");
+
             var apiResponseData = JsonSerializer.Deserialize<ZeroNineNinePayDepositResponse>(bodyJson);
 
             return apiResponseData;
