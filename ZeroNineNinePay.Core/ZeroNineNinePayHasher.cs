@@ -10,7 +10,7 @@ namespace Tgs.Payment.ZeroNineNinePay
 
         static ZeroNineNinePayHasher()
         {
-            _Md5 = MD5.Create();            
+            _Md5 = MD5.Create();
         }
 
         public static string ComputeHash(string merchantKey, IDictionary<string, object> dict)
@@ -20,7 +20,10 @@ namespace Tgs.Payment.ZeroNineNinePay
                 dict.Where(x => (x.Key is not "sign" and not "sign_type") && x.Value is not null)
                     .OrderBy(x => x.Key).Select(p =>
                     {
-                        return $"{p.Key}={p.Value}";
+                        if (p.Key == "money")
+                            return $"{p.Key}={(decimal)p.Value:#.######}";
+                        else
+                            return $"{p.Key}={p.Value}";
                     }));
 
             var plainText = $"{content}{merchantKey}";
