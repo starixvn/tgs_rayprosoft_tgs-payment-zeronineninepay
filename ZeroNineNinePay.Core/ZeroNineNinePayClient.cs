@@ -49,6 +49,8 @@ namespace Tgs.Payment.ZeroNineNinePay
 
             var sign = ZeroNineNinePayHasher.ComputeHash(merchantKey, orderDict);
 
+            _logger.LogInformation($"withdraw sign:{sign}");
+
             orderDict["sign"] = sign;
 
             var content = new StringContent(JsonSerializer.Serialize(orderDict));
