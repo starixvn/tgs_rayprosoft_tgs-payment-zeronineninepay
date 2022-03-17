@@ -1,12 +1,11 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Extensions.Logging;
 
 namespace Tgs.Payment.ZeroNineNinePay
 {
     public class ZeroNineNinePayHasher
     {
-        private static readonly MD5 _Md5;        
+        private static readonly MD5 _Md5;
 
         static ZeroNineNinePayHasher()
         {
@@ -20,14 +19,14 @@ namespace Tgs.Payment.ZeroNineNinePay
                 dict.Where(x => (x.Key is not "sign" and not "sign_type") && x.Value is not null)
                     .OrderBy(x => x.Key).Select(p =>
                     {
-                        if (p.Key == "money")
-                            return $"{p.Key}={(decimal)p.Value:#.######}";
+                        if (p.Key == "money" && decimal.TryParse(p.Value.ToString(), out var money))
+                            return $"{p.Key}={money:#.######}";
                         else
                             return $"{p.Key}={p.Value}";
                     }));
 
             var plainText = $"{content}{merchantKey}";
-            
+
             Console.WriteLine($"ComputeHash:{plainText}");
 
             var data = Encoding.UTF8.GetBytes(plainText);
