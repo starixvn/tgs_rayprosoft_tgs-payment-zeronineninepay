@@ -18,6 +18,9 @@ namespace Tgs.Payment.ZeroNineNinePay
         public async ValueTask<ZeroNineNinePayDepositResponse?> DepositAsync(string merchantKey, DepositOrder order)
         {
             var orderJson = JsonSerializer.Serialize(order);
+
+            _logger.LogInformation($"deposit orderJson:{orderJson}");
+
             var orderDict = JsonSerializer
                 .Deserialize<Dictionary<string, object>>(orderJson)!;
 
