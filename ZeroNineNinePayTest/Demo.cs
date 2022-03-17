@@ -24,8 +24,8 @@ namespace ZeroNineNinePayTest
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            //await DepoistAsync();
-            await WithdrawAsync();
+            await DepoistAsync();
+            //await WithdrawAsync();
         }
 
         private async Task DepoistAsync()
