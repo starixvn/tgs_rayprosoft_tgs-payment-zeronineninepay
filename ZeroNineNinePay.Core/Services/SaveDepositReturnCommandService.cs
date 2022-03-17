@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Tgs.Payment.Clients;
+﻿using Tgs.Payment.Clients;
 using Tgs.ServiceUtility;
 
 namespace Tgs.Payment.ZeroNineNinePay.Services
@@ -7,10 +6,14 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
     internal class SaveDepositReturnCommandService : ICommandService<SaveDepositReturnCommand>
     {
         private readonly IPaymentServiceClient _paymentServiceClient;
+        private readonly ZeroNineNinePaySerializer _zeroNineNinePaySerializer;
 
-        public SaveDepositReturnCommandService(IPaymentServiceClient paymentServiceClient)
+        public SaveDepositReturnCommandService(
+            IPaymentServiceClient paymentServiceClient,
+            ZeroNineNinePaySerializer zeroNineNinePaySerializer)
         {
             _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+            _zeroNineNinePaySerializer = zeroNineNinePaySerializer ?? throw new ArgumentNullException(nameof(zeroNineNinePaySerializer));
         }
 
         public async ValueTask ExecuteAsync(SaveDepositReturnCommand command, CancellationToken cancellationToken = default)
@@ -26,7 +29,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
                 .SubmitDepositFormStatusAsync(
                     command.FormId,
                     formData.Status,
-                    JsonSerializer.Serialize(command.DepositReturn))
+                    _zeroNineNinePaySerializer.Serialize(command.DepositReturn))
                 .ConfigureAwait(false);
         }
     }

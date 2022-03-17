@@ -7,15 +7,19 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
     internal class GetWithdrawFormQueryService : IGetService<GetWithdrawFormQuery, WithdrawFormInfo?>
     {
         private readonly IPaymentServiceClient _paymentServiceClient;
+        private readonly ZeroNineNinePaySerializer _zeroNineNinePaySerializer;
 
-        public GetWithdrawFormQueryService(IPaymentServiceClient paymentServiceClient)
+        public GetWithdrawFormQueryService(
+            IPaymentServiceClient paymentServiceClient,
+            ZeroNineNinePaySerializer zeroNineNinePaySerializer)
         {
             _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+            _zeroNineNinePaySerializer = zeroNineNinePaySerializer ?? throw new ArgumentNullException(nameof(zeroNineNinePaySerializer));
         }
 
         public async ValueTask<WithdrawFormInfo?> GetAsync(GetWithdrawFormQuery query, CancellationToken cancellationToken = default)
         {
-            var withdrawFormId = new Guid(query.OrderNo);
+            var withdrawFormId = Guid.Parse(query.OrderNo);
 
             var formData = await _paymentServiceClient
                 .GetWithdrawFormAsync(withdrawFormId)
@@ -35,7 +39,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
                     formData.BankInfo,
                     string.IsNullOrEmpty(formData.ApplyInfo)
                         ? null
-                        : JsonSerializer.Deserialize<ZeroNineNinePayWithdrawApplyInfo>(formData.ApplyInfo),
+                        : _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayWithdrawApplyInfo>(formData.ApplyInfo),
                     formData.PaymentReturn);
 
         }

@@ -8,51 +8,40 @@ pipeline {
 		BuildConfiguration = "Debug"
 		ImageName = "harbor.rpgp.cc/tgs/payment-zeronineninepay"
 	}
+
 	stages {
 		stage('Prepare'){
 			steps {
-				sh "echo 'Branch: $GIT_BRANCH'";
-                sh "printenv";
+				sh "echo 'Branch: $GIT_BRANCH'";                
 				script {
 					switch(env.GIT_BRANCH)
                     {
-                        case ['main', 'origin/main']:
+                        case ['origin/main','main']:
                             env.kube_ns = "prod";
                             env.k8s_config = 'stag-k8s-config';
-                            env.node_selector = '{ "dedicated": "prod" }';
-                            env.dedicated = '{"effect":"NoSchedule","key": "dedicated", "operator": "Equal", "value": "prod"}';
                             break;
-                        case ['release', 'origin/release']:
+                        case ['origin/release','release']:
                             env.kube_ns = "staging";
                             env.k8s_config = 'stag-k8s-config';
-                            env.node_selector = '{ "dedicated": "nonprod" }';
-                            env.dedicated = '{"effect":"NoSchedule","key": "dedicated", "operator": "Equal", "value": "nonprod"}';
                             break;
                         default:
                             env.kube_ns = "dev";
-                            env.k8s_config = 'k8s-kube-config';
-                            env.node_selector = '{}';
-                            env.dedicated = ''; 
+                            env.k8s_config = 'k8s-kube-config' 
                             break;
+
                     }
 				}
 				configFileProvider([
-                    configFile(
-                        fileId: 'tgs.' + env.kube_ns , 
-                        variable: 'tgsconfig')]) {
-                    script {
-                        def envItems = readProperties file: "$tgsconfig";
-
-                        envItems.each { key, value -> 
-                            env."tgs_${key}" = value;
+                    configFile(fileId: 'tgs.' + env.kube_ns , variable: 'tgsconfig')]) {
+                        script {
+                            def envItems = readProperties file: "$tgsconfig";
+                            envItems.each { key, value -> env."tgs_${key}" = value;
                         }
-
                         env.TAG = sh(script: "echo `date +%Y%m%d%H%M`", returnStdout: true).trim() + '-' + env.kube_ns
                         message += "\nBranch: ${env.GIT_BRANCH}" 
                         message += "\nTag: ${env.TAG}"
                         message += "\nEnv: ${env.kube_ns}"
-                        env.commit_url = "${env.GIT_URL}".replace("git@gitlab.com:","https://gitlab.com/")
-                            .replace(".git","/-/commit/") + "${env.GIT_COMMIT}"
+                        env.commit_url = "${env.GIT_URL}".replace("git@gitlab.com:","https://gitlab.com/").replace(".git","/-/commit/") + "${env.GIT_COMMIT}"
                         message += "\n Commit: ${env.commit_url}"
                     }
 				}
@@ -81,7 +70,7 @@ pipeline {
 
 			steps {
 				sh 'dotnet pack -c $BuildConfiguration "Tgs.Payment.ZeroNineNinePay.Client/Tgs.Payment.ZeroNineNinePay.Client.csproj" --no-build'
-				sh 'dotnet nuget push "Tgs.Payment.ZeroNineNinePay.Client/bin/$BuildConfiguration/*.nupkg" --source "raypro" --skip-duplicate'
+				sh 'dotnet nuget push "Tgs.Payment.ZeroNineNinePay.Client/bin/$BuildConfiguration/*.nupkg" -s raypro-baget -k admin --skip-duplicate'
 			}
 		}
 
@@ -116,42 +105,46 @@ pipeline {
 		stage('Deploy to k8s') {			
 			steps {
                 script {
-                    withKubeConfig([credentialsId: env.k8s_config]) {        
+                    withKubeConfig([credentialsId: env.k8s_config]) {
 
                         def resources = getResources(env.k8s_config, env.kube_ns, "payment-zeronineninepay")
-                        println resources
+                        def dedicated = getTgsSettings(env.k8s_config, env.kube_ns, "dedicated")
+                        def node_selector = getTgsSettings(env.k8s_config, env.kube_ns, "node-selector")
 
-                        withCredentials([string(credentialsId: "tgs-${kube_ns}-connectionstring", variable: "tgs_tgs_conn")]) {
-                            sh """
-                                cat << EOF | yq e -P | helm template deployment/k8s/zeronineninepay \
-                                    -n ${kube_ns} \
-                                    --set image.tag=${TAG} \
-                                    --set paymentApiUrl=$tgs_paymentApiUrl_zeronineninepay \
-                                    --set nats=$tgs_nats \
-                                    --set callbackBaseUrl=$tgs_paymentCallbackBaseUrl_zeronineninepay \
-                                    -f -
+                        println resources
+                        println dedicated
+                        println node_selector
+                        
+                        sh '''
+                            cat << EOF | yq e -P | helm template deployment/k8s/zeronineninepay \
+                                -n ${kube_ns} \
+                                --set image.tag=${TAG} \
+                                --set paymentApiUrl=$tgs_paymentApiUrl_zeronineninepay \
+                                --set nats=$tgs_nats \
+                                --set callbackBaseUrl=$tgs_paymentCallbackBaseUrl_zeronineninepay \
+                                -f -
                                 {
                                     "nodeSelector": $node_selector,
                                     "tolerations": [$dedicated],
-                                    "resources": $resources
+                                    "resources": $resources,
                                 }
-                            """
-                            sh """
-                                cat << EOF | yq e -P | helm template deployment/k8s/zeronineninepay \
-                                    -n ${kube_ns} \
-                                    --set image.tag=${TAG} \
-                                    --set paymentApiUrl=$tgs_paymentApiUrl_zeronineninepay \
-                                    --set nats=$tgs_nats \
-                                    --set callbackBaseUrl=$tgs_paymentCallbackBaseUrl_zeronineninepay \
-                                    -f - \
-                                | kubectl -n ${kube_ns} apply -f -
-                                {
-                                    "nodeSelector": $node_selector,
-                                    "tolerations": [$dedicated],
-                                    "resources": $resources
-                                }
-                            """
-                        }
+                        '''
+                        sh '''
+                            cat << EOF | yq e -P | helm template deployment/k8s/zeronineninepay \
+                                -n ${kube_ns} \
+                                --set image.tag=${TAG} \
+                                --set paymentApiUrl=$tgs_paymentApiUrl_zeronineninepay \
+                                --set nats=$tgs_nats \
+                                --set callbackBaseUrl=$tgs_paymentCallbackBaseUrl_zeronineninepay \
+                                -f - \
+                            | kubectl -n ${kube_ns} apply -f -
+                            {
+                                "nodeSelector": $node_selector,
+                                "tolerations": [$dedicated],
+                                "resources": $resources
+                            }
+                        '''
+                        
                     }
                 }
 			}

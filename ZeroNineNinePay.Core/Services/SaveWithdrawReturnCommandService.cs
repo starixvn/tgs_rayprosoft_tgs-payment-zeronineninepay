@@ -7,10 +7,14 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
     internal class SaveWithdrawReturnCommandService : ICommandService<SaveWithdrawReturnCommand>
     {
         private readonly IPaymentServiceClient _paymentServiceClient;
+        private readonly ZeroNineNinePaySerializer _zeroNineNinePaySerializer;
 
-        public SaveWithdrawReturnCommandService(IPaymentServiceClient paymentServiceClient)
+        public SaveWithdrawReturnCommandService(
+            IPaymentServiceClient paymentServiceClient,
+            ZeroNineNinePaySerializer zeroNineNinePaySerializer)
         {
             _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+            _zeroNineNinePaySerializer = zeroNineNinePaySerializer ?? throw new ArgumentNullException(nameof(zeroNineNinePaySerializer));
         }
 
         public async ValueTask ExecuteAsync(SaveWithdrawReturnCommand command, CancellationToken cancellationToken = default)
@@ -26,7 +30,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
                 .SubmitWithdrawFormStatusAsync(
                     formData.Id,
                     command.State,
-                    JsonSerializer.Serialize(command.WithdrawReturn),
+                    _zeroNineNinePaySerializer.Serialize(command.WithdrawReturn),
                     command.ActualAmount)
                 .ConfigureAwait(false);
         }

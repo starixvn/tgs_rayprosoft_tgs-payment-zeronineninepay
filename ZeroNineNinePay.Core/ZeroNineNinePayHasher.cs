@@ -19,10 +19,15 @@ namespace Tgs.Payment.ZeroNineNinePay
                 dict.Where(x => (x.Key is not "sign" and not "sign_type") && x.Value is not null)
                     .OrderBy(x => x.Key).Select(p =>
                     {
-                        return $"{p.Key}={p.Value}";
+                        if (p.Key == "money" && decimal.TryParse(p.Value.ToString(), out var money))
+                            return $"{p.Key}={money:#.######}";
+                        else
+                            return $"{p.Key}={p.Value}";
                     }));
 
             var plainText = $"{content}{merchantKey}";
+
+            Console.WriteLine($"ComputeHash:{plainText}");
 
             var data = Encoding.UTF8.GetBytes(plainText);
 

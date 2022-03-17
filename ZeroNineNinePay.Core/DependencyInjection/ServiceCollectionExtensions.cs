@@ -26,7 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     httpClient.BaseAddress = options.PaymentApiUrl;
                 })
                 .Services
-                //.AddSingleton<ZeroNineNinePaySerializer>()
+                .AddSingleton<ZeroNineNinePaySerializer>()
                 .AddSingleton<ZeroNineNinePayHasher>()
                 .AddPaymentClient()
                 .AddPaymentServiceClient((options, sp) =>
