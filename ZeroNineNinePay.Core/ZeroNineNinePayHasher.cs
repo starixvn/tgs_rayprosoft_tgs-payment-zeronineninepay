@@ -1,15 +1,16 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Logging;
 
 namespace Tgs.Payment.ZeroNineNinePay
 {
     public class ZeroNineNinePayHasher
     {
-        private static readonly MD5 _Md5;
+        private static readonly MD5 _Md5;        
 
         static ZeroNineNinePayHasher()
         {
-            _Md5 = MD5.Create();
+            _Md5 = MD5.Create();            
         }
 
         public static string ComputeHash(string merchantKey, IDictionary<string, object> dict)
@@ -23,6 +24,8 @@ namespace Tgs.Payment.ZeroNineNinePay
                     }));
 
             var plainText = $"{content}{merchantKey}";
+            
+            Console.WriteLine($"ComputeHash:{plainText}");
 
             var data = Encoding.UTF8.GetBytes(plainText);
 
