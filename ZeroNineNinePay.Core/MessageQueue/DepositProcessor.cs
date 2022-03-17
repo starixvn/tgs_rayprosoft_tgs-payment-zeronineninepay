@@ -1,4 +1,5 @@
 ﻿using Google.Protobuf;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tgs.MessageQueue;
 using Tgs.Payment.Protos;
@@ -9,15 +10,18 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
     {
         private readonly ZeroNineNinePaySerializer _zeroNineNinePaySerializer;
         private readonly ZeroNineNinePayClient _zeroNineNinePayClient;
+        private readonly ILogger<DepositProcessor> _logger;
         private readonly ZeroNineNinePayOptions _options;
 
         public DepositProcessor(
             ZeroNineNinePaySerializer zeroNineNinePaySerializer,
             ZeroNineNinePayClient zeroNineNinePayClient,
-            IOptions<ZeroNineNinePayOptions> optionsAccessor)
+            IOptions<ZeroNineNinePayOptions> optionsAccessor,
+            ILogger<DepositProcessor> logger)
         {
             _zeroNineNinePaySerializer = zeroNineNinePaySerializer;
             _zeroNineNinePayClient = zeroNineNinePayClient ?? throw new ArgumentNullException(nameof(zeroNineNinePayClient));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _options = optionsAccessor.Value;
         }
 
@@ -25,6 +29,8 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
         {
             var request = DepositRequest.Parser.ParseFrom(data.Span);
             var settings = _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayDepositSettings>(request.ApplyInfo)!;
+
+            _logger.LogInformation($"Deposit ApplyInfo:{request.ApplyInfo}");
 
             var order = new DepositOrder
             {
@@ -35,7 +41,7 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
                 NotifyUrl = $"{_options.CallbackBaseUrl}/deposit/callback",
                 ReturnUrl = $"{_options.CallbackBaseUrl}/deposit/callback",
                 Money = decimal.Parse(request.Amount),
-                ClientIp = string.IsNullOrEmpty(settings.ClientIp) ? string.Empty : settings.ClientIp,
+                ClientIp = settings.ClientIp,
                 SignType = "md5"
             };
 
