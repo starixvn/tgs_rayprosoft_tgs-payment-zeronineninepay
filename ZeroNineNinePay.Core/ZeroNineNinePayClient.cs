@@ -1,15 +1,18 @@
 ﻿using System.Net.Http.Headers;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace Tgs.Payment.ZeroNineNinePay
 {
     internal class ZeroNineNinePayClient
     {
         private readonly HttpClient _httpClient;
+        private readonly ILogger<ZeroNineNinePayClient> _logger;
 
-        public ZeroNineNinePayClient(HttpClient httpClient)
+        public ZeroNineNinePayClient(HttpClient httpClient, ILogger<ZeroNineNinePayClient> logger)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async ValueTask<ZeroNineNinePayDepositResponse?> DepositAsync(string merchantKey, DepositOrder order)
@@ -58,6 +61,8 @@ namespace Tgs.Payment.ZeroNineNinePay
             var bodyJson = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
             _ = response.EnsureSuccessStatusCode();
+
+            _logger.LogInformation($"withdraw bodyJson:{bodyJson}");
 
             var apiResponseData = JsonSerializer.Deserialize<ZeroNineNinePayWithdrawResponse>(bodyJson);
 
