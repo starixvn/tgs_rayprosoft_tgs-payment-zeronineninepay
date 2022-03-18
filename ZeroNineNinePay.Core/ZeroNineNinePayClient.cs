@@ -76,7 +76,7 @@ namespace Tgs.Payment.ZeroNineNinePay
 
             _logger.LogInformation($"withdraw bodyJson:{bodyJson}");
 
-            var apiResponseData = JsonSerializer.Deserialize<ZeroNineNinePayWithdrawResponse>(bodyJson);
+            var apiResponseData = _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayWithdrawResponse>(bodyJson);
 
             return apiResponseData;
         }
