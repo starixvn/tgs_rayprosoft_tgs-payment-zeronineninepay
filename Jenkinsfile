@@ -61,13 +61,7 @@ pipeline {
 			}
 		}
 		
-		stage('Push packages') {
-			when {
-                expression {
-                    return env.kube_ns == 'dev';
-                }
-            }
-
+		stage('Push packages') {			
 			steps {
 				sh 'dotnet pack -c $BuildConfiguration "Tgs.Payment.ZeroNineNinePay.Client/Tgs.Payment.ZeroNineNinePay.Client.csproj" --no-build'
 				sh 'dotnet nuget push "Tgs.Payment.ZeroNineNinePay.Client/bin/$BuildConfiguration/*.nupkg" -s raypro-baget -k admin --skip-duplicate'

@@ -1,4 +1,5 @@
-﻿using Google.Protobuf;
+﻿using System.Text.Json;
+using Google.Protobuf;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tgs.MessageQueue;
@@ -28,9 +29,10 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
         public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
         {
             var request = DepositRequest.Parser.ParseFrom(data.Span);
-            var settings = _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayDepositSettings>(request.ApplyInfo)!;
 
             _logger.LogInformation($"Deposit ApplyInfo:{request.ApplyInfo}");
+
+            var settings = _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayDepositSettings>(request.ApplyInfo)!;
 
             var order = new DepositOrder
             {

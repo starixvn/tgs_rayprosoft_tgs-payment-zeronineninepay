@@ -1,7 +1,7 @@
-﻿using System.Text.Json;
-using Google.Protobuf;
+﻿using Google.Protobuf;
 using Microsoft.Extensions.Options;
 using Tgs.MessageQueue;
+using Tgs.Payment.Clients;
 using Tgs.Payment.Protos;
 
 namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
@@ -10,15 +10,18 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
     {
         private readonly ZeroNineNinePaySerializer _zeroNineNinePaySerializer;
         private readonly ZeroNineNinePayClient _zeroNineNinePayClient;
+        private readonly IPaymentClient _paymentClient;
         private readonly ZeroNineNinePayOptions _options;
 
         public WithdrawProcessor(
             ZeroNineNinePaySerializer zeroNineNinePaySerializer,
             ZeroNineNinePayClient zeroNineNinePayClient,
-            IOptions<ZeroNineNinePayOptions> optionsAccessor)
+            IOptions<ZeroNineNinePayOptions> optionsAccessor,
+            IPaymentClient paymentClient)
         {
             _zeroNineNinePaySerializer = zeroNineNinePaySerializer;
             _zeroNineNinePayClient = zeroNineNinePayClient ?? throw new ArgumentNullException(nameof(zeroNineNinePayClient));
+            _paymentClient = paymentClient ?? throw new ArgumentNullException(nameof(paymentClient));
             _options = optionsAccessor.Value;
         }
 
@@ -46,7 +49,11 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
 
             if (withdrawResponse != null && withdrawResponse.Code == 200)
             {
-                var applyInfo = new ZeroNineNinePayWithdrawApplyInfo(settings, withdrawResponse);                
+                var applyInfo = new ZeroNineNinePayWithdrawApplyInfo(settings, withdrawResponse);
+
+                await _paymentClient
+                    .SaveWithdrawFormThirdPartyOrderNoAsync(settings.OrderNo, withdrawResponse.Data.TradeNo)
+                    .ConfigureAwait(false);
 
                 var msg = new WithdrawResponse
                 {

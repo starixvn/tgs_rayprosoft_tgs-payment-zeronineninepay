@@ -8,11 +8,16 @@ namespace Tgs.Payment.ZeroNineNinePay
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<ZeroNineNinePayClient> _logger;
+        private readonly ZeroNineNinePaySerializer _zeroNineNinePaySerializer;
 
-        public ZeroNineNinePayClient(HttpClient httpClient, ILogger<ZeroNineNinePayClient> logger)
+        public ZeroNineNinePayClient(
+            HttpClient httpClient, 
+            ILogger<ZeroNineNinePayClient> logger,
+            ZeroNineNinePaySerializer zeroNineNinePaySerializer)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _zeroNineNinePaySerializer = zeroNineNinePaySerializer ?? throw new ArgumentNullException(nameof(zeroNineNinePaySerializer));
         }
 
         public async ValueTask<ZeroNineNinePayDepositResponse?> DepositAsync(string merchantKey, DepositOrder order)
@@ -41,7 +46,7 @@ namespace Tgs.Payment.ZeroNineNinePay
 
             _logger.LogInformation($"deposit bodyJson:{bodyJson}");
 
-            var apiResponseData = JsonSerializer.Deserialize<ZeroNineNinePayDepositResponse>(bodyJson);
+            var apiResponseData = _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayDepositResponse>(bodyJson);
 
             return apiResponseData;
         }
@@ -71,7 +76,7 @@ namespace Tgs.Payment.ZeroNineNinePay
 
             _logger.LogInformation($"withdraw bodyJson:{bodyJson}");
 
-            var apiResponseData = JsonSerializer.Deserialize<ZeroNineNinePayWithdrawResponse>(bodyJson);
+            var apiResponseData = _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayWithdrawResponse>(bodyJson);
 
             return apiResponseData;
         }
