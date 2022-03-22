@@ -1,33 +1,39 @@
-﻿using System.Text.Json;
-using Google.Protobuf;
+﻿using Google.Protobuf;
 using Microsoft.Extensions.Options;
 using Tgs.MessageQueue;
+using Tgs.Payment.Clients;
 using Tgs.Payment.Protos;
 
 namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
 {
     internal class WithdrawProcessor : IMessageProcessor
     {
+        private readonly ZeroNineNinePaySerializer _zeroNineNinePaySerializer;
         private readonly ZeroNineNinePayClient _zeroNineNinePayClient;
+        private readonly IPaymentClient _paymentClient;
         private readonly ZeroNineNinePayOptions _options;
 
         public WithdrawProcessor(
+            ZeroNineNinePaySerializer zeroNineNinePaySerializer,
             ZeroNineNinePayClient zeroNineNinePayClient,
-            IOptions<ZeroNineNinePayOptions> optionsAccessor)
+            IOptions<ZeroNineNinePayOptions> optionsAccessor,
+            IPaymentClient paymentClient)
         {
+            _zeroNineNinePaySerializer = zeroNineNinePaySerializer;
             _zeroNineNinePayClient = zeroNineNinePayClient ?? throw new ArgumentNullException(nameof(zeroNineNinePayClient));
+            _paymentClient = paymentClient ?? throw new ArgumentNullException(nameof(paymentClient));
             _options = optionsAccessor.Value;
         }
 
         public async ValueTask<ReadOnlyMemory<byte>> HandleAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
         {
             var request = WithdrawRequest.Parser.ParseFrom(data.Span);
-            var settings = JsonSerializer.Deserialize<ZeroNineNinePayWithdrawSettings>(request.ApplyInfo)!;
+            var settings = _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayWithdrawSettings>(request.ApplyInfo)!;
 
             var order = new WithdrawOrder
             {
                 MerchantId = settings.MerchantId,
-                OutTradeNo = settings.OrderNo.ToString(),
+                OutTradeNo = settings.OrderNo.ToString("N"),
                 Realname = settings.RealName,
                 BankName = settings.BankName,
                 BankNumber = settings.BankNumber,
@@ -45,35 +51,13 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
             {
                 var applyInfo = new ZeroNineNinePayWithdrawApplyInfo(settings, withdrawResponse);
 
-                //var transactionQueryOrder = new TransactionQueryOrder()
-                //{
-                //    Version = "V2",
-                //    SignType = "MD5",
-                //    MerchantNo = settings.MerchantNo,
-                //    Date = DateTime.Now.ToString("yyyyMMddhhmmss"),
-                //    OrderNo = settings.OrderNo.ToString()
-                //};
-                //var transactionQueryResponse = await _zeroNineNinePayClient
-                //    .TransactionQueryAsync(settings.ApiKey, transactionQueryOrder)
-                //    .ConfigureAwait(false);
-
-                //var thirdPartyOrderNo = "";
-                //if (transactionQueryResponse!.Code == "0")
-                //{
-                //    thirdPartyOrderNo = transactionQueryResponse!.Detail!.SysOrderNo;
-                //}
-                //else
-                //{
-                //    _logger.LogInformation($"transactionQueryResponse Failed:{transactionQueryResponse.Msg}");
-                //}
-
-                //await _paymentClient
-                //    .SaveWithdrawFormThirdPartyOrderNoAsync(settings.OrderNo, thirdPartyOrderNo!)
-                //    .ConfigureAwait(false);
+                await _paymentClient
+                    .SaveWithdrawFormThirdPartyOrderNoAsync(settings.OrderNo, withdrawResponse.Data.TradeNo)
+                    .ConfigureAwait(false);
 
                 var msg = new WithdrawResponse
                 {
-                    Result = JsonSerializer.Serialize(applyInfo)
+                    Result = _zeroNineNinePaySerializer.Serialize(applyInfo)
                 };
 
                 return msg.ToByteArray();
@@ -90,7 +74,7 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
 
                 var msg = new WithdrawResponse
                 {
-                    Result = JsonSerializer.Serialize(applyInfo)
+                    Result = _zeroNineNinePaySerializer.Serialize(applyInfo)
                 };
 
                 return msg.ToByteArray();

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Tgs.Payment.ZeroNineNinePay;
 using ZeroNineNinePayTest;
 
 CreateHostBuilder(args).Build().Run();
@@ -15,6 +16,6 @@ static IHostBuilder CreateHostBuilder(string[] args)
 
             _ = services
             .AddPaymentClient()
-            //.AddSingleton<MaticPaySerializer>()
+            .AddSingleton<ZeroNineNinePaySerializer>()
             .AddHostedService<Demo>();
         });

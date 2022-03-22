@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Tgs.Payment.Clients;
+﻿using Tgs.Payment.Clients;
 using Tgs.ServiceUtility;
 
 namespace Tgs.Payment.ZeroNineNinePay.Services
@@ -7,15 +6,19 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
     internal class GetDepositFormQueryService : IGetService<GetDepositFormQuery, DepositFormInfo?>
     {
         private readonly IPaymentServiceClient _paymentServiceClient;
+        private readonly ZeroNineNinePaySerializer _zeroNineNinePaySerializer;
 
-        public GetDepositFormQueryService(IPaymentServiceClient paymentServiceClient)
+        public GetDepositFormQueryService(
+            IPaymentServiceClient paymentServiceClient,
+            ZeroNineNinePaySerializer zeroNineNinePaySerializer)
         {
             _paymentServiceClient = paymentServiceClient ?? throw new ArgumentNullException(nameof(paymentServiceClient));
+            _zeroNineNinePaySerializer = zeroNineNinePaySerializer ?? throw new ArgumentNullException(nameof(zeroNineNinePaySerializer));
         }
 
         public async ValueTask<DepositFormInfo?> GetAsync(GetDepositFormQuery query, CancellationToken cancellationToken = default)
         {
-            var formId = new Guid(query.OrderNo);
+            var formId = Guid.Parse(query.OrderNo);
 
             var formData = await _paymentServiceClient
                 .GetDepositFormAsync(formId)
@@ -32,7 +35,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
                     formData.Status,
                     string.IsNullOrEmpty(formData.ApplyInfo)
                         ? null
-                        : JsonSerializer.Deserialize<ZeroNineNinePayDepositApplyInfo>(formData.ApplyInfo));
+                        : _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayDepositApplyInfo>(formData.ApplyInfo));
         }
     }
 }

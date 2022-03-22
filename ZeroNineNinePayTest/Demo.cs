@@ -8,21 +8,24 @@ namespace ZeroNineNinePayTest
 {
     internal class Demo : BackgroundService
     {
+        private readonly ZeroNineNinePaySerializer _zeroNineNinePaySerializer;
         private readonly IPaymentClient _paymentClient;
         private readonly ILogger<Demo> _logger;
 
         public Demo(
+            ZeroNineNinePaySerializer zeroNineNinePaySerializer,
             IPaymentClient paymentClient,
             ILogger<Demo> logger)
         {
+            _zeroNineNinePaySerializer = zeroNineNinePaySerializer ?? throw new ArgumentNullException(nameof(zeroNineNinePaySerializer));
             _paymentClient = paymentClient ?? throw new ArgumentNullException(nameof(paymentClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            //await DepoistAsync();
-            await WithdrawAsync();
+            await DepoistAsync();
+            //await WithdrawAsync();
         }
 
         private async Task DepoistAsync()
@@ -47,7 +50,7 @@ namespace ZeroNineNinePayTest
                 var depositReturn = await _paymentClient.DepositAsync(
                     "tgs.payment.zeronineninepay.deposit",
                     amount,
-                    JsonSerializer.Serialize(depositSettings));
+                    _zeroNineNinePaySerializer.Serialize(depositSettings));
                 _logger.LogInformation($"Deposit Return: {depositReturn}");
             }
             catch (Exception ex)
@@ -81,7 +84,7 @@ namespace ZeroNineNinePayTest
                 var withdrawReturn = await _paymentClient.WithdrawAsync(
                     "tgs.payment.zeronineninepay.withdraw",
                     amount,
-                    JsonSerializer.Serialize(withdrawSettings));
+                    _zeroNineNinePaySerializer.Serialize(withdrawSettings));
                 _logger.LogInformation($"Withdraw Return: {withdrawReturn}");
             }
             catch (Exception ex)

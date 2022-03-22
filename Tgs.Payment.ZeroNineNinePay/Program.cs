@@ -1,8 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
@@ -10,7 +8,9 @@ using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("/config/appsettings.json", true);
+builder.Configuration
+    .AddJsonFile("/config/appsettings.json", true)
+    .AddEnvironmentVariables();
 
 builder.Services
     .AddHttpLogging(logging =>
@@ -59,6 +59,7 @@ builder.Services.Configure<AspNetCoreInstrumentationOptions>(options =>
             || !httpContext.Request.Path.StartsWithSegments("/swagger")
             && !httpContext.Request.Path.StartsWithSegments("/healthz")
             && !httpContext.Request.Path.StartsWithSegments("/profiler/")
+            && !httpContext.Request.Path.StartsWithSegments("/metrics")
             && !new[] { "html", "ico", "png", "jpg" }.Any(
                 ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
     };
@@ -67,7 +68,7 @@ builder.Services.Configure<AspNetCoreInstrumentationOptions>(options =>
 builder.Services.AddProfileViewer();
 
 builder.Services
-    .AddZeroNineNinePay((options, sp) => 
+    .AddZeroNineNinePay((options, sp) =>
     {
         var config = sp.GetRequiredService<IConfiguration>();
 

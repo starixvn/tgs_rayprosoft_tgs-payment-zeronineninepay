@@ -41,6 +41,21 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.hostIP
+            - name: ZeroNineNinePay__NatsUrl
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: nats
+            - name: ZeroNineNinePay__PaymentApiUrl
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: payment-zeronineninepay-paymentApiUrl
+            - name: ZeroNineNinePay__CallbackBaseUrl
+              valueFrom:
+                secretKeyRef:
+                  name: tgs-connections
+                  key: payment-zeronineninepay-callback
           ports:
             - name: http
               containerPort: 80
