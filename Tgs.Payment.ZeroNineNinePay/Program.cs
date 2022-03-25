@@ -48,7 +48,6 @@ builder.Services.AddOpenTelemetryTracing(builder => builder
         .AddSource("Tgs.*")
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddProfileViewExporter()
         .AddOtlpExporter());
 
 builder.Services.Configure<AspNetCoreInstrumentationOptions>(options =>
@@ -64,8 +63,6 @@ builder.Services.Configure<AspNetCoreInstrumentationOptions>(options =>
                 ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
     };
 });
-
-builder.Services.AddProfileViewer();
 
 builder.Services
     .AddZeroNineNinePay((options, sp) =>
@@ -93,7 +90,5 @@ app.Use(async (context, next) =>
 
     _ = await stream.ReadToEndAsync();
 });
-
-app.MapProfileViewer();
 
 app.Run();
