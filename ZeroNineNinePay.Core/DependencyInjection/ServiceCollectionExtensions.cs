@@ -1,6 +1,4 @@
 ﻿using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
 using Tgs.Payment.ZeroNineNinePay;
 using Tgs.Payment.ZeroNineNinePay.MessageQueue;
@@ -34,15 +32,6 @@ namespace Microsoft.Extensions.DependencyInjection
                     var ZeroNineNinePayOptions = sp.GetRequiredService<IOptions<ZeroNineNinePayOptions>>().Value;
 
                     options.PaymentServiceBaseUrl = ZeroNineNinePayOptions.PaymentServiceBaseUrl;
-
-                    options.JsonSerializerOptions = new JsonSerializerOptions
-                    {
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                        Converters =
-                        {
-                            new JsonStringEnumConverter()
-                        }
-                    };
                 })
                 .AddMessageQueue()
                 .AddNatsMessageQueue(config =>

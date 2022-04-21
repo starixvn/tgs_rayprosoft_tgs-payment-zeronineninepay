@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.Payment.ZeroNineNinePay
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.Payment.ZeroNineNinePay.Client", "Tgs.Payment.ZeroNineNinePay.Client\Tgs.Payment.ZeroNineNinePay.Client.csproj", "{F44ECCB1-39BB-4350-881D-9535D94A9EEF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tgs.Payment.ZeroNineNinePay.Tests", "Tgs.Payment.ZeroNineNinePay.Tests\Tgs.Payment.ZeroNineNinePay.Tests.csproj", "{361A4816-CA15-44EA-8663-5FDE6F240337}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tgs.Payment.ZeroNineNinePay.Tests", "Tgs.Payment.ZeroNineNinePay.Tests\Tgs.Payment.ZeroNineNinePay.Tests.csproj", "{4C44251E-9587-4F93-83D6-561036352EDC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{F44ECCB1-39BB-4350-881D-9535D94A9EEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F44ECCB1-39BB-4350-881D-9535D94A9EEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F44ECCB1-39BB-4350-881D-9535D94A9EEF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{361A4816-CA15-44EA-8663-5FDE6F240337}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{361A4816-CA15-44EA-8663-5FDE6F240337}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{361A4816-CA15-44EA-8663-5FDE6F240337}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{361A4816-CA15-44EA-8663-5FDE6F240337}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C44251E-9587-4F93-83D6-561036352EDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C44251E-9587-4F93-83D6-561036352EDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C44251E-9587-4F93-83D6-561036352EDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C44251E-9587-4F93-83D6-561036352EDC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

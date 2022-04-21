@@ -1,10 +1,11 @@
-﻿using NUnit.Framework;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Tgs.Payment.ZeroNineNinePay.Tests
 {
+    [TestClass]
     public class HasherTests
     {
-        [Test]
+        [TestMethod]
         public void Test_Check_Deposit_Hash()
         {
             var clientIp = "220.132.206.70";
@@ -37,7 +38,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Tests
             Assert.AreEqual(expected, actual);
         }
 
-        [Test]
+        [TestMethod]
         public void Test_Check_Withdraw_Hash()
         {
             var merchantId = 20086;
