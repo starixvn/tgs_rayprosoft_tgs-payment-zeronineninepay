@@ -20,7 +20,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
         public async ValueTask ExecuteAsync(SaveWithdrawReturnCommand command, CancellationToken cancellationToken = default)
         {
             var formData = await _paymentServiceClient
-                .GetWithdrawFormAsync(command.FormId)
+                .GetWithdrawFormAsync(command.FormId, cancellationToken)
                 .ConfigureAwait(false);
 
             if (formData == null)
@@ -31,7 +31,8 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
                     formData.Id,
                     command.State,
                     _zeroNineNinePaySerializer.Serialize(command.WithdrawReturn),
-                    command.ActualAmount)
+                    command.ActualAmount,
+                    cancellationToken: cancellationToken)
                 .ConfigureAwait(false);
         }
     }
