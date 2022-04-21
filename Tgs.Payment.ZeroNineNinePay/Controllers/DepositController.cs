@@ -26,6 +26,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
            [FromServices] ICommandService<CheckSigningCodeCommand> checkSigningCodeService,
            [FromServices] ICommandService<SaveDepositReturnCommand> saveReturnService,
            [FromServices] ICommandService<ApproveDepositFormCommand> approveService,
+           [FromServices] ICommandService<RejectDepositFormCommand> rejectService,
            [FromBody] Dictionary<string, object> response)
         {
             var json = JsonSerializer.Serialize(response);
@@ -85,6 +86,40 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
                             depositForm.Id,
                             depositForm.BrandId,
                             returnData.MoneyTrue))
+                        .ConfigureAwait(false);
+                }
+                else if (depositForm.Status < PaymentFlowState.WaitApprove && depositResponse.State == -1) 
+                {
+                    var returnData = new ZeroNineNinePayDepositReturn()
+                    {
+                        MerchantId = depositResponse.MerchantId,
+                        PayType = depositResponse.PayType,
+                        TradeNo = depositResponse.TradeNo,
+                        OutTradeNo = depositResponse.OutTradeNo,
+                        Money = depositResponse.Money,
+                        MoneyTrue = depositResponse.MoneyTrue,
+                        Fee = depositResponse.Fee,
+                        State = depositResponse.State,
+                        Sign = depositResponse.Sign,
+                        SignType = depositResponse.SignType
+                    };
+
+                    await saveReturnService
+                        .ExecuteAsync(new SaveDepositReturnCommand(depositForm.Id, returnData))
+                        .ConfigureAwait(false);
+
+                    var jsonSerializerOptions = new JsonSerializerOptions
+                    {
+                        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
+                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                    };
+
+                    _logger.LogInformation(JsonSerializer.Serialize(returnData, jsonSerializerOptions));
+
+                    await rejectService
+                        .ExecuteAsync(new RejectDepositFormCommand(
+                            depositForm.Id,
+                            depositForm.BrandId))
                         .ConfigureAwait(false);
                 }
 

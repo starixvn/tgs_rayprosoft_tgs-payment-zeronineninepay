@@ -81,6 +81,18 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
                         .ExecuteAsync(saveWithdrawCommand)
                         .ConfigureAwait(false);
                 }
+                else if (withdrawResponse.State == -1)
+                {
+                    var saveWithdrawCommand = new SaveWithdrawReturnCommand(
+                        withdrawForm.Id,
+                        PaymentFlowState.Reject,
+                        returnData,
+                        null);
+
+                    await saveReturnService
+                        .ExecuteAsync(saveWithdrawCommand)
+                        .ConfigureAwait(false);
+                }
                 else
                 {
                     var saveWithdrawCommand = new SaveWithdrawReturnCommand(

@@ -54,6 +54,9 @@ namespace Tgs.Payment.ZeroNineNinePay
         public async ValueTask<ZeroNineNinePayWithdrawResponse?> WithdrawAsync(string merchantKey, WithdrawOrder order)
         {
             var orderJson = JsonSerializer.Serialize(order);
+
+            _logger.LogInformation("withdraw orderJson:{orderJson}", orderJson);
+
             var orderDict = JsonSerializer
                 .Deserialize<Dictionary<string, object>>(orderJson)!;
 
