@@ -1,4 +1,6 @@
 ﻿using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
 using Tgs.Payment.ZeroNineNinePay;
 
@@ -30,6 +32,14 @@ public static class ServiceCollectionExtensions
                 var ZeroNineNinePayOptions = sp.GetRequiredService<IOptions<ZeroNineNinePayOptions>>().Value;
 
                 options.PaymentServiceBaseUrl = ZeroNineNinePayOptions.PaymentServiceBaseUrl;
+
+                options.JsonSerializerOptions = new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    Converters = {
+                        new JsonStringEnumConverter()
+                    }
+                };
             })
             .AddTransient<ZeroNineNinePayHasher>()
             .AddSingleton<ZeroNineNinePaySerializer>();
