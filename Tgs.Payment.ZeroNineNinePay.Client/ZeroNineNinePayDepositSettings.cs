@@ -3,7 +3,7 @@
     public record ZeroNineNinePayDepositSettings(
         int MerchantId,
         string MerchantKey,
-        ZeroNineNineDepositPayType PayType,
+        string PayType,
         Guid OrderNo,
         string ClientIp,
         string? PayerName);

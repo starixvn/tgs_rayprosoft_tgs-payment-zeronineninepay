@@ -36,7 +36,7 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
             var order = new DepositOrder
             {
                 MerchantId = settings.MerchantId,
-                PayType = settings.PayType.ToString(),
+                PayType = settings.PayType,
                 PayName = settings.PayerName,
                 OutTradeNo = settings.OrderNo.ToString("N"),
                 NotifyUrl = $"{_options.CallbackBaseUrl}/deposit/callback",
