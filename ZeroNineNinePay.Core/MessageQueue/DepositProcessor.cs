@@ -33,6 +33,8 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
 
             var settings = _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayDepositSettings>(request.ApplyInfo)!;
 
+            _logger.LogInformation("payType:{settings.PayType}", settings.PayType);
+
             var order = new DepositOrder
             {
                 MerchantId = settings.MerchantId,
