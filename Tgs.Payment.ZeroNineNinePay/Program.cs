@@ -5,6 +5,8 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Tgs.Payment.ZeroNineNinePay;
+using Tgs.Payment.ZeroNineNinePay.MessageQueue;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,14 +29,6 @@ builder.Logging
     });
 
 builder.Services
-    .AddHttpLogging(logging =>
-    {
-        logging.LoggingFields = HttpLoggingFields.All;
-        logging.MediaTypeOptions.AddText("application/x-www-form-urlencoded");
-        logging.MediaTypeOptions.AddText("text/html");
-    });
-
-builder.Services
     .AddControllers()
     .AddJsonOptions(options =>
     {
@@ -42,7 +36,33 @@ builder.Services
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     });
 
-builder.Services.AddHealthChecks();
+builder.Services
+    .AddHttpClientLoggingHandler()
+    .AddZeroNineNinePay(
+        (options, _) => builder.Configuration
+            .GetSection("ZeroNineNinePay")
+            .Bind(options),
+        sp => sp.ResolveLoggingHandler<ZeroNineNinePayOptions>())
+    .AddMessageQueue()
+    .AddNatsMessageQueue(natsConfig => natsConfig
+        .ConfigQueueOptions((options, _) => options.Url = builder.Configuration.GetConnectionString("Nats"))
+        .AddProcessorByType(
+            ProcessorTypes.DepositProcessorType,
+            "tgs.payment.zeronineninepay.deposit",
+            "tgs.payment.zeronineninepay.deposit")
+        .AddProcessorByType(
+            ProcessorTypes.WithdrawProcessorType,
+            "tgs.payment.zeronineninepay.withdraw",
+            "tgs.payment.zeronineninepay.withdraw"))
+    .AddNatsGlobPatternExchange("*");
+
+builder.Services
+    .AddHttpLogging(logging =>
+    {
+        logging.LoggingFields = HttpLoggingFields.All;
+        logging.MediaTypeOptions.AddText("application/x-www-form-urlencoded");
+        logging.MediaTypeOptions.AddText("text/html");
+    });
 
 builder.Services
     .AddOptions<OtlpExporterOptions>()
@@ -54,45 +74,36 @@ builder.Services
             options.Endpoint = new Uri($"http://{nodeIp}:4317");
 
         conifg.GetSection("Opentelemetry:Tracing").Bind(options);
-    });
-
-builder.Services.AddOpenTelemetryTracing(builder => builder
+    })
+    .Services
+    .AddOpenTelemetryTracing(builder => builder
         .SetResourceBuilder(ResourceBuilder.CreateDefault()
         .AddEnvironmentVariableDetector())
         .AddSource("Tgs.*")
         .AddAspNetCoreInstrumentation()
         .AddHttpClientInstrumentation()
-        .AddOtlpExporter());
-
-builder.Services.Configure<AspNetCoreInstrumentationOptions>(options =>
-{
-    options.Filter = httpContext =>
+        .AddOtlpExporter())
+    .Configure<AspNetCoreInstrumentationOptions>(options =>
     {
-        return !httpContext.Request.Path.HasValue
-            || !httpContext.Request.Path.StartsWithSegments("/swagger")
-            && !httpContext.Request.Path.StartsWithSegments("/healthz")            
-            && !httpContext.Request.Path.StartsWithSegments("/metrics")
-            && !new[] { "html", "ico", "png", "jpg" }.Any(
-                ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
-    };
-});
+        options.Filter = httpContext =>
+        {
+            return !httpContext.Request.Path.HasValue
+                || !httpContext.Request.Path.StartsWithSegments("/swagger")
+                && !httpContext.Request.Path.StartsWithSegments("/healthz")
+                && !httpContext.Request.Path.StartsWithSegments("/metrics")
+                && !new[] { "html", "ico", "png", "jpg" }.Any(
+                    ext => httpContext.Request.Path.Value.EndsWith($".{ext}"));
+        };
+    });
 
 builder.Services
-    .AddZeroNineNinePay((options, sp) =>
-    {
-        var config = sp.GetRequiredService<IConfiguration>();
-
-        config.GetSection("ZeroNineNinePay").Bind(options);
-    });
+    .AddHealthChecks();
 
 var app = builder.Build();
 
 app.UseHttpLogging();
 
-app.UseRouting();
-
 app.MapControllers();
-
 app.MapHealthChecks("/healthz");
 
 app.Use(async (context, next) =>
