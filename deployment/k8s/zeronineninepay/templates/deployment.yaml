@@ -41,7 +41,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.hostIP
-            - name: ZeroNineNinePay__NatsUrl
+            - name: ConnectionStrings__Nats
               valueFrom:
                 secretKeyRef:
                   name: tgs-connections
