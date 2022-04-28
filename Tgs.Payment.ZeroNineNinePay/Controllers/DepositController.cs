@@ -31,7 +31,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
         {
             var json = JsonSerializer.Serialize(response);
 
-            _logger.LogInformation(json);
+            _logger.LogInformation("Deposit callback:{json}", json);
 
             var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json)!;
             _ = dict.Remove("sign");
@@ -88,7 +88,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
                             returnData.MoneyTrue))
                         .ConfigureAwait(false);
                 }
-                else if (depositForm.Status < PaymentFlowState.WaitApprove && depositResponse.State == -1) 
+                else if (depositForm.Status < PaymentFlowState.WaitApprove && depositResponse.State == -1)
                 {
                     var returnData = new ZeroNineNinePayDepositReturn()
                     {

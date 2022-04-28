@@ -28,7 +28,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
         {
             var json = JsonSerializer.Serialize(response);
 
-            _logger.LogInformation(json);
+            _logger.LogInformation("Withdraw callback:{json}", json);
 
             var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json)!;
 
