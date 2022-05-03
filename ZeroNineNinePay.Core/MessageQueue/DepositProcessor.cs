@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Google.Protobuf;
+﻿using Google.Protobuf;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Tgs.MessageQueue;
@@ -34,10 +33,12 @@ namespace Tgs.Payment.ZeroNineNinePay.MessageQueue
 
             var settings = _zeroNineNinePaySerializer.Deserialize<ZeroNineNinePayDepositSettings>(request.ApplyInfo)!;
 
+            _logger.LogInformation("payType:{settings.PayType}", settings.PayType);
+
             var order = new DepositOrder
             {
                 MerchantId = settings.MerchantId,
-                PayType = settings.PayType.ToString(),
+                PayType = settings.PayType,
                 PayName = settings.PayerName,
                 OutTradeNo = settings.OrderNo.ToString("N"),
                 NotifyUrl = $"{_options.CallbackBaseUrl}/deposit/callback",

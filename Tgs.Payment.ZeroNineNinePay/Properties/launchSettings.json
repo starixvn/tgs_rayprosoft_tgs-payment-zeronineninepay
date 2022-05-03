@@ -12,7 +12,9 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "OTEL_SERVICE_NAME": "Payment-ZeroNineNinePay(local)",
+        "NODE_IP": "otel.rpgp.cc"
       },
       "applicationUrl": "https://localhost:7108;https://+:7108;http://+:7100",
       "dotnetRunMessages": true
@@ -22,7 +24,7 @@
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "OTEL_SERVICE_NAME": "Payment-099pay(local)",
+        "OTEL_SERVICE_NAME": "Payment-ZeroNineNinePay(local)",
         "NODE_IP": "otel.rpgp.cc"
       }
     },
@@ -34,7 +36,7 @@
       "useSSL": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "OTEL_SERVICE_NAME": "Payment-099pay(local)",
+        "OTEL_SERVICE_NAME": "Payment-ZeroNineNinePay(local)",
         "NODE_IP": "otel.rpgp.cc"
       }
     }

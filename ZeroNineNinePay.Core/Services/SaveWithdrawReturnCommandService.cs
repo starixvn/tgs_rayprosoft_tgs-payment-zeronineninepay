@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Tgs.Payment.Clients;
+﻿using Tgs.Payment.Clients;
 using Tgs.ServiceUtility;
 
 namespace Tgs.Payment.ZeroNineNinePay.Services
