@@ -28,7 +28,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
         {
             var json = JsonSerializer.Serialize(response);
 
-            _logger.LogInformation(json);
+            _logger.LogInformation("Withdraw callback:{json}", json);
 
             var dict = JsonSerializer.Deserialize<Dictionary<string, object>>(json)!;
 
@@ -76,6 +76,18 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
                                 formStatus,
                                 returnData,
                                 returnData.Money);
+
+                    await saveReturnService
+                        .ExecuteAsync(saveWithdrawCommand)
+                        .ConfigureAwait(false);
+                }
+                else if (withdrawResponse.State == -1)
+                {
+                    var saveWithdrawCommand = new SaveWithdrawReturnCommand(
+                        withdrawForm.Id,
+                        PaymentFlowState.Reject,
+                        returnData,
+                        null);
 
                     await saveReturnService
                         .ExecuteAsync(saveWithdrawCommand)

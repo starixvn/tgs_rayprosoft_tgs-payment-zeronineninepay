@@ -11,7 +11,7 @@ namespace Tgs.Payment.ZeroNineNinePay
         private readonly ZeroNineNinePaySerializer _zeroNineNinePaySerializer;
 
         public ZeroNineNinePayClient(
-            HttpClient httpClient, 
+            HttpClient httpClient,
             ILogger<ZeroNineNinePayClient> logger,
             ZeroNineNinePaySerializer zeroNineNinePaySerializer)
         {
@@ -24,7 +24,7 @@ namespace Tgs.Payment.ZeroNineNinePay
         {
             var orderJson = JsonSerializer.Serialize(order);
 
-            _logger.LogInformation($"deposit orderJson:{orderJson}");
+            _logger.LogInformation("deposit orderJson:{orderJson}", orderJson);
 
             var orderDict = JsonSerializer
                 .Deserialize<Dictionary<string, object>>(orderJson)!;
@@ -35,6 +35,8 @@ namespace Tgs.Payment.ZeroNineNinePay
 
             var content = new StringContent(JsonSerializer.Serialize(orderDict));
             content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            _logger.LogInformation("httpClient BaseAddress {_httpClient.BaseAddress}", _httpClient.BaseAddress);
 
             var response = await _httpClient
                 .PostAsync("/gateway/pay/index.html", content)
@@ -54,6 +56,9 @@ namespace Tgs.Payment.ZeroNineNinePay
         public async ValueTask<ZeroNineNinePayWithdrawResponse?> WithdrawAsync(string merchantKey, WithdrawOrder order)
         {
             var orderJson = JsonSerializer.Serialize(order);
+
+            _logger.LogInformation("withdraw orderJson:{orderJson}", orderJson);
+
             var orderDict = JsonSerializer
                 .Deserialize<Dictionary<string, object>>(orderJson)!;
 

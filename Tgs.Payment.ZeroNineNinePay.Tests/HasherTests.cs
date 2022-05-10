@@ -1,10 +1,11 @@
-﻿using NUnit.Framework;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Tgs.Payment.ZeroNineNinePay.Tests
 {
+    [TestClass]
     public class HasherTests
     {
-        [Test]
+        [TestMethod]
         public void Test_Check_Deposit_Hash()
         {
             var clientIp = "220.132.206.70";
@@ -37,7 +38,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Tests
             Assert.AreEqual(expected, actual);
         }
 
-        [Test]
+        [TestMethod]
         public void Test_Check_Withdraw_Hash()
         {
             var merchantId = 20086;
@@ -67,6 +68,23 @@ namespace Tgs.Payment.ZeroNineNinePay.Tests
 
             var expected = "72449dfa79daec62a1b39ca1a60f13d3";
             Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Test_Deserialize()
+        {
+            var serializer = new ZeroNineNinePaySerializer();
+
+            var test = serializer.Serialize(
+                new ZeroNineNinePayDepositSettings(
+                    20114,
+                    "e966245afe6abbb1b531774b088e7d58",
+                    "BANK_TRANSFER",
+                    Guid.Parse("d8f5576c-5e7a-4511-b8be-cb255b64e7d7"),
+                    "::ffff:172.16.109.93", null));
+
+            var settings = serializer.Deserialize<ZeroNineNinePayDepositSettings>(test);
+            Assert.IsNotNull(settings);
         }
     }
 }

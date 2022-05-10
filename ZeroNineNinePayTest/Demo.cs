@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Tgs.Payment.Clients;
 using Tgs.Payment.ZeroNineNinePay;
@@ -29,14 +28,13 @@ namespace ZeroNineNinePayTest
         }
 
         private async Task DepoistAsync()
-        {           
+        {
             var merchantId = 20114;
             var merchantKey = "e966245afe6abbb1b531774b088e7d58";
-            var payType = ZeroNineNineDepositPayType.BANK_TRANSFER;
+            var payType = "BANK_TRANSFER";
             var orderNo = Guid.NewGuid();
             var amount = 600.00m;
             var clientIp = "220.132.206.70";
-            
 
             var depositSettings = new ZeroNineNinePayDepositSettings(
                 merchantId,
@@ -66,7 +64,7 @@ namespace ZeroNineNinePayTest
             var realName = "realNameTest";
             var bankName = "bankNameTest";
             var bankNumber = "112233445566";
-            var bankAddress = "bankAddressTest";            
+            var bankAddress = "bankAddressTest";
             var orderNo = Guid.NewGuid();
             var amount = 1000m;
 
@@ -78,7 +76,7 @@ namespace ZeroNineNinePayTest
                 bankNumber,
                 bankAddress,
                 orderNo);
-            
+
             try
             {
                 var withdrawReturn = await _paymentClient.WithdrawAsync(
