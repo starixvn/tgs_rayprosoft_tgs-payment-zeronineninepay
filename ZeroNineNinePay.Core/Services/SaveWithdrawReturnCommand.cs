@@ -3,8 +3,7 @@
 namespace Tgs.Payment.ZeroNineNinePay.Services
 {
     public record SaveWithdrawReturnCommand(
-        Guid FormId,
-        PaymentFlowState State,
+        Guid FormId,        
         ZeroNineNinePayWithdrawReturn WithdrawReturn,
         decimal? ActualAmount);
 }
