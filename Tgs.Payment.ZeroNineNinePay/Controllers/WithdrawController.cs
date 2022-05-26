@@ -74,7 +74,6 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
 
                     var saveWithdrawCommand = new SaveWithdrawReturnCommand(
                         withdrawForm.Id,
-                        formStatus,
                         returnData,
                         returnData.Money);
 
@@ -93,7 +92,6 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
                 {
                     var saveWithdrawCommand = new SaveWithdrawReturnCommand(
                         withdrawForm.Id,
-                        PaymentFlowState.Reject,
                         returnData,
                         null);
 
@@ -111,7 +109,6 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
                 {
                     var saveWithdrawCommand = new SaveWithdrawReturnCommand(
                         withdrawForm.Id,
-                        withdrawForm.Status,
                         returnData,
                         null);
 
