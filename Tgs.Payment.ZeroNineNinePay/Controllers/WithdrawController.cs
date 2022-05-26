@@ -24,6 +24,7 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
             [FromServices] IGetService<GetWithdrawFormQuery, Services.WithdrawFormInfo?> getWithdrawFormService,
             [FromServices] ICommandService<CheckSigningCodeCommand> checkSigningCodeService,
             [FromServices] ICommandService<SaveWithdrawReturnCommand> saveReturnService,
+            [FromServices] IPaymentClient paymentClient,
             [FromBody] Dictionary<string, object> response)
         {
             var json = JsonSerializer.Serialize(response);
@@ -72,32 +73,42 @@ namespace Tgs.Payment.ZeroNineNinePay.Controllers
                         formStatus = PaymentFlowState.Paid;
 
                     var saveWithdrawCommand = new SaveWithdrawReturnCommand(
-                                withdrawForm.Id,
-                                formStatus,
-                                returnData,
-                                returnData.Money);
+                        withdrawForm.Id,
+                        returnData,
+                        returnData.Money);
 
                     await saveReturnService
                         .ExecuteAsync(saveWithdrawCommand)
+                        .ConfigureAwait(false);
+
+                    await paymentClient
+                        .PaidWithdrawAsync(
+                            withdrawForm.Id,
+                            withdrawForm.BrandId,
+                            HttpContext.RequestAborted)
                         .ConfigureAwait(false);
                 }
                 else if (withdrawResponse.State == -1)
                 {
                     var saveWithdrawCommand = new SaveWithdrawReturnCommand(
                         withdrawForm.Id,
-                        PaymentFlowState.Reject,
                         returnData,
                         null);
 
                     await saveReturnService
                         .ExecuteAsync(saveWithdrawCommand)
                         .ConfigureAwait(false);
+
+                    await paymentClient
+                        .RejectWithdrawAsync(
+                            withdrawForm.Id,
+                            withdrawForm.BrandId)
+                        .ConfigureAwait(false);
                 }
                 else
                 {
                     var saveWithdrawCommand = new SaveWithdrawReturnCommand(
                         withdrawForm.Id,
-                        withdrawForm.Status,
                         returnData,
                         null);
 

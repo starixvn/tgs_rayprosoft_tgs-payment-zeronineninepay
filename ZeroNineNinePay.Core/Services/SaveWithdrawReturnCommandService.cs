@@ -27,10 +27,10 @@ namespace Tgs.Payment.ZeroNineNinePay.Services
 
             await _paymentServiceClient
                 .SubmitWithdrawFormStatusAsync(
-                    formData.Id,
-                    command.State,
-                    _zeroNineNinePaySerializer.Serialize(command.WithdrawReturn),
-                    command.ActualAmount)
+                    formId: formData.Id,
+                    state: null,
+                    paymentReturn: _zeroNineNinePaySerializer.Serialize(command.WithdrawReturn),
+                    actualAmount: command.ActualAmount)
                 .ConfigureAwait(false);
         }
     }
